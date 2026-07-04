@@ -364,3 +364,22 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_itch_message_builder.cpp")
         test_itch_message_builder.cpp
     )
 endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_moldudp64_encode_downstream.cpp")
+    fgep_add_test(
+        test_moldudp64_encode_downstream
+        test_moldudp64_encode_downstream.cpp
+    )
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_moldudp64_packet_framer.cpp")
+    fgep_add_test(
+        test_moldudp64_packet_framer
+        test_moldudp64_packet_framer.cpp
+    )
+endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_udp_sender.cpp")
+    fgep_add_test(
+        test_udp_sender
+        test_udp_sender.cpp
+    )
+endif()

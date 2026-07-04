@@ -131,6 +131,8 @@ add_library(
         src/runtime/runtime_phase.cpp
         src/runtime/no_heap_guard.cpp
         src/gen/itch_message_builder.cpp
+        src/gen/moldudp64_packet_framer.cpp
+        src/net/udp_sender.cpp
 )
 
 target_include_directories(
