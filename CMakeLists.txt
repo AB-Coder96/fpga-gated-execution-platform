@@ -130,6 +130,7 @@ add_library(
         src/bench/wall_clock_backend_benchmark.cpp
         src/runtime/runtime_phase.cpp
         src/runtime/no_heap_guard.cpp
+        src/gen/itch_message_builder.cpp
 )
 
 target_include_directories(

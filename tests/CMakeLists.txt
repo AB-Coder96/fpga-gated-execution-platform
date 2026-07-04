@@ -357,3 +357,10 @@ endif()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_runtime_phase.cpp")
     fgep_add_test(test_runtime_phase test_runtime_phase.cpp)
 endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_itch_message_builder.cpp")
+    fgep_add_test(
+        test_itch_message_builder
+        test_itch_message_builder.cpp
+    )
+endif()
