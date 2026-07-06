@@ -133,6 +133,7 @@ add_library(
         src/gen/itch_message_builder.cpp
         src/gen/moldudp64_packet_framer.cpp
         src/net/udp_sender.cpp
+        src/net/udp_receiver.cpp
 )
 
 target_include_directories(

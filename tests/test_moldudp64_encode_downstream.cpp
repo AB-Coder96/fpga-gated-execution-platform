@@ -11,11 +11,15 @@ namespace {
 
 [[nodiscard]] fgep::moldudp64::Session session_from_text(const char* text) {
     fgep::moldudp64::Session session{};
+    session.fill(std::byte{' '});
 
-    for (std::size_t index = 0; index < session.size(); ++index) {
+    std::size_t index = 0;
+
+    while (index < session.size() && text[index] != '\0') {
         session[index] = static_cast<std::byte>(
             static_cast<unsigned char>(text[index])
         );
+        ++index;
     }
 
     return session;
@@ -169,6 +173,11 @@ int main() {
                 == ErrorCode::invalid_argument
         );
     }
+
+
+
+
+
 
     return 0;
 }

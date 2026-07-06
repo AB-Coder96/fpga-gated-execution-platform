@@ -383,3 +383,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_udp_sender.cpp")
         test_udp_sender.cpp
     )
 endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test_udp_receiver.cpp")
+    fgep_add_test(
+        test_udp_receiver
+        test_udp_receiver.cpp
+    )
+endif()
