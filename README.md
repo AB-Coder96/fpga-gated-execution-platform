@@ -4,32 +4,35 @@
 [![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![Build system](https://img.shields.io/badge/build-CMake-informational.svg)](https://cmake.org/)
 
-A systems-engineering testbed for the low-latency techniques used in HFT execution paths: real NASDAQ wire protocols (ITCH, OUCH, MoldUDP64), a lock-free SPSC ring, a software risk/guardrail gate, and — as of this phase — a real two-host market-data-in, order-out round trip over UDP, measured end to end rather than claimed.
+A systems-engineering testbed for the low-latency techniques used in HFT execution paths: real NASDAQ wire protocols (ITCH, OUCH, MoldUDP64), a lock-free SPSC ring, a software risk/guardrail gate, and a real two-host market-data-in, order-out round trip over UDP, measured end to end rather than claimed.
 
 ## What this is
 
-This gateway decodes and encodes real NASDAQ TotalView-ITCH, OUCH, and MoldUDP64 wire formats byte-for-byte, builds a per-symbol order book from them, and runs a configurable risk/guardrail check — a software model of the hardware-gated decision path this architecture is designed around — before handing an order to a pluggable execution backend (kernel UDP today; DPDK and AF_XDP scaffolding for later). Phase 1 adds the piece that was missing before: a synthetic market-data generator and a live feed-handling engine that actually talk to each other over the network, so every number this project reports is something that was measured, not asserted.
+This gateway decodes and encodes real NASDAQ TotalView-ITCH, OUCH, and MoldUDP64 wire formats byte-for-byte, builds a per-symbol order book from them, and runs a configurable risk/guardrail check — a software model of the hardware-gated decision path this architecture is designed around — before handing an order to a pluggable execution backend (kernel UDP today; DPDK and AF_XDP scaffolding for later). A synthetic market-data generator and a live feed-handling engine talk to each other over the network end to end, so every number this project reports is something that was measured, not asserted.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    subgraph A["Server A — market simulator"]
-        GEN[md_generator] -->|MoldUDP64 / ITCH, UDP| NET((network))
+    GEN[md_generator] -->|MoldUDP64 / ITCH, UDP| FH[feed handler]
+
+    subgraph serverA["Server A - market simulator"]
+        GEN
         LIS[order_ack_listener]
     end
-    subgraph B["Server B — trading platform"]
-        NET --> FH[feed handler]
+
+    subgraph serverB["Server B - trading platform"]
         FH --> BOOK[order book + BBO]
         BOOK --> STRAT[strategy]
         STRAT --> RISK[risk supervisor]
         RISK --> GATE[guardrail gate]
         GATE --> EXEC[kernel UDP backend]
-        EXEC -->|OUCH, UDP| LIS
     end
+
+    EXEC -->|OUCH, UDP| LIS
 ```
 
-Everything left of the network is the generator side; everything right of it is the same book → risk → gate → execution pipeline the project already had, now driven by live traffic instead of only unit tests and benchmarks.
+Everything in Server A is the generator side; everything in Server B is the same book → risk → gate → execution pipeline the project already had, now driven by live traffic instead of only unit tests and benchmarks.
 
 ## Getting started
 
@@ -94,24 +97,7 @@ docs/              protocol references, runtime memory model, network benchmarki
 
 ## Testing
 
-Every component has its own test binary; there's no shared test framework dependency by default (GoogleTest can be enabled via `-DFGEP_ENABLE_GOOGLETEST=ON` for the handful of tests that use it). `ctest` runs all of them. As of this phase, that includes real loopback network tests, not just protocol round-trip checks — `ctest` is genuinely exercising sockets, not only pure logic.
-
-## Status / Roadmap
-
-**Phase 1 — market simulation, correctness: done.** A synthetic market-data generator, a live feed-handling engine, and an order/ack listener now exchange real UDP traffic end to end, with a round-trip report to show for it.
-
-Everything past this point is not yet built. In priority order:
-
-| Phase | What it adds | Status |
-|---|---|---|
-| 1 | Market simulation — generator, live engine, listener, round-trip report | ✅ done |
-| 2 | Latency tuning — fixed-capacity hot-path containers, CPU/IRQ isolation, tuned EC2 pair | ⬜ not started |
-| 3 | Live dashboard — real-time metrics and controls, embedded in the existing web stack | ⬜ not started |
-| 4 | Real market data — historical session replay, dashboard-selectable | ⬜ not started |
-| 5 | Hardware-clock timing — PTP-synchronized one-way latency, not just round trip | ⬜ not started |
-| 6 | Continuous benchmarking — CI-driven performance history over time | ⬜ not started |
-
-The gap between "works" and "fast" is deliberate: Phase 1 proves the pipeline is correct on inexpensive, always-on hardware before Phase 2 spends any effort — or any money — on the tuning that only matters once correctness isn't in question.
+Every component has its own test binary; there's no shared test framework dependency by default (GoogleTest can be enabled via `-DFGEP_ENABLE_GOOGLETEST=ON` for the handful of tests that use it). `ctest` runs all of them, including real loopback network tests, not just protocol round-trip checks — it's genuinely exercising sockets, not only pure logic.
 
 ## Why this exists
 
