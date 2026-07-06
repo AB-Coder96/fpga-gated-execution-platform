@@ -12,20 +12,21 @@ namespace {
 
 [[nodiscard]] fgep::moldudp64::Session session_from_text(const char* text) {
     fgep::moldudp64::Session session{};
+    session.fill(std::byte{' '});
 
-    for (std::size_t index = 0; index < session.size(); ++index) {
+    std::size_t index = 0;
+
+    while (index < session.size() && text[index] != '\0') {
         session[index] = static_cast<std::byte>(
             static_cast<unsigned char>(text[index])
         );
+        ++index;
     }
 
     return session;
 }
 
-// ITCH message structs do not define operator==, so this compares the
-// fields that matter for a round-trip check. ItchMessageBuilder only ever
-// produces AddOrderNoMpidMessage or OrderCancelMessage from
-// next_market_event(), so those are the only two alternatives handled here.
+
 [[nodiscard]] bool market_events_match(
     const fgep::itch::Message& original,
     const fgep::itch::Message& decoded
