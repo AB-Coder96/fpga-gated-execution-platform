@@ -80,7 +80,7 @@ For a full round-trip report — packet counts, decode errors, sequence gaps, an
 
 ## Repository layout
 
-The core library and binaries are namespaced/prefixed `fgep` internally, a holdover from this project's original working name — it isn't the project's name, just its build-time identifier.
+The core library and binaries are namespaced/prefixed `fgep` internally.
 
 ```
 include/fgep/      public headers, mirrors src/ by module
@@ -99,10 +99,3 @@ docs/              protocol references, runtime memory model, network benchmarki
 
 Every component has its own test binary; there's no shared test framework dependency by default (GoogleTest can be enabled via `-DFGEP_ENABLE_GOOGLETEST=ON` for the handful of tests that use it). `ctest` runs all of them, including real loopback network tests, not just protocol round-trip checks — it's genuinely exercising sockets, not only pure logic.
 
-## Why this exists
-
-This is a systems-engineering project, not a production trading system: it applies the protocols, concurrency patterns, and measurement discipline used in real low-latency execution paths, and is explicit about what's real (protocol parsing, the lock-free queue, the measured round trip) versus modeled (synthetic order flow, no live matching engine, a software stand-in for a hardware-gated decision path) at every stage.
-
-## License
-
-Not yet chosen — add one before making this repository public.
